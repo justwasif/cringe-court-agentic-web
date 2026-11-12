@@ -126,8 +126,10 @@ async function mountAgents() {
   const status = $('#agent-status');
   try {
     const runtime = await boot('#agent', {
-      originUrl: location.origin,
-      sandboxWorkerUrl: '/runtime/sandbox-worker.js',
+      // Absolute, derived from this module's own location, so the site works at
+      // a host root or under a subpath (GitHub Pages, project pages).
+      originUrl: new URL('../', import.meta.url).href.replace(/\/$/, ''),
+      sandboxWorkerUrl: new URL('../runtime/sandbox-worker.js', import.meta.url).href,
     });
 
     const handlers = createActionHandlers(host);

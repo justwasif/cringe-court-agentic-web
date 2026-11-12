@@ -76,6 +76,7 @@ const server = createServer(async (req, res) => {
     }
 
     // The sandbox worker must run under a restrictive CSP.
+    // The sandbox worker must run under a restrictive CSP.
     if (urlPath.startsWith('/runtime/sandbox-worker.js')) {
       headers['content-security-policy'] =
         "default-src 'none'; script-src blob:; connect-src 'none'; worker-src 'none'";
