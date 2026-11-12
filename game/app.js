@@ -124,6 +124,17 @@ function wireControls() {
 /** Mount the agent runtime and register the court's actions. */
 async function mountAgents() {
   const status = $('#agent-status');
+  // If boot() neither resolves nor rejects, the page must say so rather than
+  // sitting on "Starting…" forever. This is a real failure mode: a hung fetch
+  // to the published manifest looks identical to a slow start.
+  const watchdog = setTimeout(() => {
+    if (status && /Starting/.test(status.textContent || '')) {
+      status.textContent =
+        'The agent runtime did not finish starting. The courtroom below works without it. ' +
+        'Check the browser console for a fetch or module error.';
+      status.classList.add('agent-status--error');
+    }
+  }, 8000);
   try {
     const runtime = await boot('#agent', {
       // Absolute, derived from this module's own location, so the site works at
@@ -152,6 +163,8 @@ async function mountAgents() {
         'The agent layer could not start. The courtroom below still works: the agents need a model key to speak, but the case and the ballot do not.';
       status.classList.add('agent-status--error');
     }
+  } finally {
+    clearTimeout(watchdog);
   }
 }
 
