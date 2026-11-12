@@ -15,6 +15,7 @@ import {
   resolve,
   submitExhibit,
   utcDate,
+  caseLabel,
 } from './court.js';
 
 /** Optional date override, set from the URL for demos (?date=2026-11-12). */
@@ -74,4 +75,13 @@ export const host = {
   },
 };
 
-export { buildCase, closeVoting, readTally, recordVote, resolve, submitExhibit, utcDate };
+export {
+  buildCase,
+  caseLabel,
+  closeVoting,
+  readTally,
+  recordVote,
+  resolve,
+  submitExhibit,
+  utcDate,
+};
