@@ -119,6 +119,9 @@
       </p>
     </footer>
 
-    <script type="module" src="./game/app.js"></script>
+    <!-- Versioned so a previously-cached module graph cannot survive a deploy:
+         GitHub Pages serves assets with a 10-minute max-age, and a stale entry
+         module silently aborts the whole graph. Bump on release. -->
+    <script type="module" src="./game/app.js?v=4"></script>
   </body>
 </html>
