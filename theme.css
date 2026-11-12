@@ -1,0 +1,459 @@
+/* CringeCourt — visual system.
+ *
+ * Two rules drove this: the courtroom should read as a printed docket rather
+ * than a web app, and nothing may depend on a framework, because the whole site
+ * is served as static files.
+ */
+
+:root {
+  --ink: #14110f;
+  --ink-soft: #1a1613;
+  --paper: #f2ece4;
+  --paper-dim: #cfc4b6;
+  --paper-muted: #a89c8f;
+  --paper-faint: #8d8073;
+  --rule: #3a322c;
+  --rule-soft: #262019;
+  --gold: #c9a227;
+  --guilty: #a33a2c;
+  --guilty-light: #ffb3a7;
+  --not-cooked: #2c6b6b;
+  --not-cooked-light: #a7e0e0;
+  --serif: ui-serif, Georgia, 'Times New Roman', serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--serif);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 22px;
+}
+
+/* ---------- masthead ---------- */
+
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 38px 0 26px;
+  background: linear-gradient(180deg, #17130f 0%, var(--ink) 100%);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.seal {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  color: var(--gold);
+  font-size: 23px;
+  line-height: 1;
+}
+
+.masthead h1 {
+  margin: 0;
+  font-size: 27px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.tagline {
+  margin: 3px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-muted);
+}
+
+.lede {
+  margin: 0;
+  font-size: 15px;
+  color: var(--paper-dim);
+  max-width: 62ch;
+}
+
+.lede strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ---------- pitch ---------- */
+
+.pitch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 34px 0;
+}
+
+@media (max-width: 640px) {
+  .pitch {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pitch-card {
+  border: 1px solid var(--rule);
+  background: var(--ink-soft);
+  padding: 18px 20px;
+}
+
+.pitch-card h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.pitch-card p {
+  margin: 0 0 9px;
+  font-size: 14.5px;
+  color: var(--paper-dim);
+}
+
+.pitch-card p:last-child {
+  margin-bottom: 0;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: #241e19;
+  padding: 1px 5px;
+  border-radius: 2px;
+  color: var(--paper);
+}
+
+/* ---------- agent panel ---------- */
+
+.agent-panel {
+  border: 1px solid var(--rule);
+  background: var(--ink-soft);
+  margin: 34px 0;
+  overflow: hidden;
+}
+
+.agent-head {
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.agent-head h2 {
+  margin: 0 0 5px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.agent-head .note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--paper-faint);
+}
+
+.agent-mount {
+  min-height: 380px;
+}
+
+.agent-mount:empty::after {
+  content: 'The runtime mounts here.';
+  display: block;
+  padding: 24px 20px;
+  color: var(--paper-faint);
+  font-size: 13px;
+}
+
+.agent-status {
+  margin: 0;
+  padding: 10px 20px 14px;
+  font-size: 12.5px;
+  color: var(--paper-faint);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.agent-status--error {
+  color: #e8a598;
+}
+
+/* ---------- courtroom ---------- */
+
+.courtroom {
+  margin: 44px 0;
+}
+
+.court-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 10px;
+  margin-bottom: 22px;
+}
+
+.court-head h2 {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-muted);
+}
+
+.case-no,
+.case-no-inline {
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.charge {
+  font-size: 23px;
+  line-height: 1.32;
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+
+.exhibit {
+  border-left: 3px solid #6b5d4f;
+  padding-left: 15px;
+  margin: 0 0 8px;
+  color: var(--paper-dim);
+  font-style: italic;
+}
+
+.aggravator {
+  font-size: 13.5px;
+  color: var(--paper-muted);
+  margin: 0 0 6px;
+}
+
+.argument {
+  margin: 24px 0;
+}
+
+.speaker {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.speaker.prosecutor {
+  color: #e8a598;
+}
+
+.speaker.defense {
+  color: #9ecfd4;
+}
+
+.argument p {
+  margin: 0 0 8px;
+  font-size: 15.5px;
+}
+
+/* ---------- ballot ---------- */
+
+.meter {
+  display: flex;
+  height: 10px;
+  background: #2a2320;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 22px 0 8px;
+}
+
+.tally-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--paper-muted);
+  margin-bottom: 20px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 22px 0 10px;
+}
+
+@media (max-width: 520px) {
+  .buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vote {
+  padding: 16px 14px;
+  font-family: var(--serif);
+  font-size: 13.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: #1f1a17;
+  color: var(--paper);
+  border: 1px solid #5a4f45;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.vote.guilty {
+  border-color: var(--guilty);
+  color: var(--guilty-light);
+}
+
+.vote.guilty:hover {
+  background: #2a1a17;
+}
+
+.vote.not {
+  border-color: var(--not-cooked);
+  color: var(--not-cooked-light);
+}
+
+.vote.not:hover {
+  background: #16221f;
+}
+
+.verdict {
+  border: 1px solid var(--rule);
+  background: var(--ink-soft);
+  padding: 18px 20px;
+  margin: 24px 0;
+}
+
+.verdict .case-no {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.verdict p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--paper-dim);
+}
+
+/* ---------- disclosure ---------- */
+
+.disclosure {
+  border-top: 1px solid var(--rule);
+  padding-top: 26px;
+  margin-top: 44px;
+}
+
+.disclosure h2 {
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-muted);
+}
+
+.disclosure ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.disclosure li {
+  margin-bottom: 11px;
+  font-size: 14.5px;
+  color: var(--paper-dim);
+}
+
+.disclosure strong {
+  color: var(--paper);
+}
+
+/* ---------- foot ---------- */
+
+.foot {
+  border-top: 1px solid var(--rule);
+  margin-top: 40px;
+  padding-top: 20px;
+  padding-bottom: 50px;
+  font-size: 13px;
+  color: var(--paper-faint);
+}
+
+.foot a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid #4a3f22;
+}
+
+.foot a:hover {
+  border-bottom-color: var(--gold);
+}
+
+.note {
+  font-size: 12.5px;
+  color: var(--paper-faint);
+}
+
+.controls {
+  margin: 16px 0 0;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  color: var(--paper-faint);
+  font-family: var(--serif);
+  font-size: 12.5px;
+  padding: 0 0 2px;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: var(--paper-dim);
+  border-bottom-color: var(--paper-muted);
+}
+
+/* ---------- runtime overrides ---------- */
+
+/* The reference runtime ships light-themed chrome. Contain it so the courtroom
+ * keeps its own palette instead of fighting a white panel. */
+.agent-mount [data-nsdeploy-ui] {
+  color-scheme: dark;
+}
+
+.ns-action-status {
+  background: #17130f !important;
+  border-bottom: 1px solid var(--rule-soft);
+  color: var(--paper-faint) !important;
+}
+
+.ns-action-status summary {
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px !important;
+}

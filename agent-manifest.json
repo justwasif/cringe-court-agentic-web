@@ -1,0 +1,61 @@
+{
+  "brand": "CringeCourt",
+  "networks": [
+    {
+      "name": "cringecourt",
+      "front_man": "court_clerk",
+      "hocon": "./cringecourt.network.json",
+      "description": "A public courtroom where two AI counsel argue a submitted moment of cringe and a human jury decides. Ask it to hear today's case. It returns the transcript and stops: the verdict is cast by people, through the site's own ballot. The court never announces a verdict itself.",
+      "tags": ["deployed", "nsdeploy", "courtroom", "game"],
+      "sample_queries": [
+        "Hear today's case.",
+        "Someone replied 'you too' to a waiter. Prosecute it.",
+        "Is it cringe to bring a printed résumé to a coffee meeting?",
+        "What is today's charge, and has the jury voted yet?"
+      ]
+    }
+  ],
+  "llm_router": {
+    "base_url": "https://api.openai.com/v1",
+    "mock": false,
+    "byok_router": "https://api.openai.com/v1"
+  },
+  "allowed_peers": [],
+  "peer_policy": {
+    "mode": "open",
+    "deny_origins": [],
+    "note": "CringeCourt publishes its agents as public web artifacts. Credentials and voting capability never transfer to a peer."
+  },
+  "agent_mcp": {
+    "protocol": "nsdeploy-agent-mcp/v1",
+    "network": "cringecourt",
+    "front_man": "court_clerk",
+    "available": false,
+    "reason": "This is a static bundle. A public MCP facade requires an application host."
+  },
+  "theme": {
+    "primary": "#c9a227"
+  },
+  "actions": {
+    "version": 1,
+    "module": "./actions/court-actions.js",
+    "agentTools": [
+      "get_case_state",
+      "submit_exhibit",
+      "cast_verdict",
+      "get_tally"
+    ]
+  },
+  "linking": {
+    "protocol": "nsdeploy-link/v1",
+    "exports": [
+      {
+        "network": "cringecourt",
+        "front_man": "court_clerk",
+        "aliases": ["cringecourt", "court_clerk", "cringe_court"],
+        "url": "cringecourt"
+      }
+    ],
+    "imports": []
+  }
+}

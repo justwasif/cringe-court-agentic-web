@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CringeCourt — an open agentic courtroom</title>
+    <meta
+      name="description"
+      content="A public courtroom where two AI counsel argue a moment of cringe and a human jury decides. Built as an open agentic website: the agents are published as JSON and run in your browser with your own model key."
+    />
+    <link rel="stylesheet" href="./theme.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>§</text></svg>" />
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="wrap">
+        <div class="brand">
+          <span class="seal">§</span>
+          <div>
+            <h1>CringeCourt</h1>
+            <p class="tagline">AI counsel argue · a human jury decides</p>
+          </div>
+        </div>
+        <p class="lede">
+          An <strong>open agentic website</strong>. The court's agents are published
+          as public JSON and run in your browser, against your own model key. Other
+          agent sites can load them and hold a hearing here too.
+        </p>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="pitch">
+        <div class="pitch-card">
+          <h2>What this is</h2>
+          <p>
+            One case a day. A charge, an exhibit, and two AI counsel who argue it:
+            Miss Ratio for the people, Counsel Chaos for the defence.
+          </p>
+          <p>
+            You are the jury. Nobody else. The court refuses to decide — ask it to
+            and it will decline, then offer you the ballot.
+          </p>
+        </div>
+        <div class="pitch-card">
+          <h2>How the agents work</h2>
+          <p>
+            <code>agent-manifest.json</code> names the network and its front agent.
+            <code>cringecourt.network.json</code> is the whole agent graph as data —
+            no code, no server.
+          </p>
+          <p>
+            Four <em>site actions</em> connect the agents to this page, so they read
+            the real case and can propose a real vote. You confirm it.
+          </p>
+        </div>
+      </section>
+
+      <section class="agent-panel">
+        <div class="agent-head">
+          <h2>The court clerk</h2>
+          <p class="note">
+            Add your own model key in the settings below the chat. The site never
+            pays for inference and never sees your key.
+          </p>
+        </div>
+        <div id="agent" class="agent-mount"></div>
+        <p id="agent-status" class="agent-status">Starting the agent runtime…</p>
+      </section>
+
+      <section class="courtroom">
+        <div class="court-head">
+          <h2>Today&rsquo;s hearing</h2>
+          <span id="case-date" class="case-no-inline"></span>
+        </div>
+        <div id="court"></div>
+        <p class="controls">
+          <button id="close-voting" class="link-button">Close voting on this case</button>
+        </p>
+      </section>
+
+      <section class="disclosure">
+        <h2>What is real here, and what is not</h2>
+        <ul>
+          <li>
+            <strong>Real:</strong> the agent network is published as data, runs in
+            your browser, and is loadable by another origin. The site actions are
+            registered capabilities that read and write this page's state.
+          </li>
+          <li>
+            <strong>Real:</strong> the model key is yours. Inference is billed to
+            your provider account, not to this site.
+          </li>
+          <li>
+            <strong>Not real:</strong> the tally. This is a static site with no
+            backend, so votes live in <em>your</em> browser's storage. The number
+            you see is this browser's ballots, not a global count. The UI says
+            &ldquo;this browser&rdquo; for exactly that reason.
+          </li>
+          <li>
+            <strong>Not real:</strong> the verdict. This is a comedy show about a
+            fictional incident. No verdict has ever been enforced and none is
+            legal advice.
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="wrap foot">
+      <p>
+        The agents are at
+        <a href="./agent-manifest.json">/agent-manifest.json</a> ·
+        <a href="./cringecourt.network.json">/cringecourt.network.json</a> ·
+        <a href="./links.json">/links.json</a>
+      </p>
+      <p class="note">
+        Built on the Minimum Viable Specification for a Worldwide Agentic Web
+        (MVP Profile 0.2).
+      </p>
+    </footer>
+
+    <script type="module" src="./game/app.js"></script>
+  </body>
+</html>

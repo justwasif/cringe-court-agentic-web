@@ -1,0 +1,14 @@
+{
+  "name": "cringe-court-agentic-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CringeCourt as an open agentic website: a courtroom whose agents are published as public JSON and run in the visitor's browser.",
+  "scripts": {
+    "start": "node serve.mjs",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.0"
+  }
+}
