@@ -6,8 +6,8 @@
  * model key, and the agents are an addition rather than a dependency.
  */
 
-import { boot } from './runtime/index.js';
-import { createActionHandlers } from './actions/court-actions.js';
+import { boot } from '../runtime/index.js';
+import { createActionHandlers } from '../actions/court-actions.js';
 import {
   buildCase,
   caseLabel,
@@ -19,7 +19,7 @@ import {
   recordVote,
   resolve,
   utcDate,
-} from './game/host.js';
+} from './host.js';
 
 const $ = (selector) => document.querySelector(selector);
 
