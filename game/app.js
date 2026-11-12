@@ -7,7 +7,6 @@
  */
 
 import { boot } from '../runtime/index.js';
-import { createActionHandlers } from '../actions/court-actions.js';
 import {
   buildCase,
   caseLabel,
@@ -143,16 +142,25 @@ async function mountAgents() {
       sandboxWorkerUrl: new URL('../runtime/sandbox-worker.js', import.meta.url).href,
     });
 
-    const handlers = createActionHandlers(host);
-    for (const definition of handlers) {
-      runtime.actions.register(definition);
-    }
+    // The runtime already imported this site's action module during boot()
+    // (via manifest.actions.module → registerActions), so the catalogue is
+    // populated. Registering again here would create duplicates and throw
+    // 'Duplicate action'. We only report what the runtime discovered.
+    const catalogue = runtime.engine?.actions?.catalog({
+      base: runtime.engine?.top?.base,
+      network: runtime.engine?.top?.network?.name,
+    }) ?? [];
 
     if (status) {
-      const count = handlers.length;
-      status.textContent = `${count} court actions connected: ${handlers
-        .map((h) => h.name)
-        .join(', ')}. The agents can read the case and propose a vote — you confirm it.`;
+      if (catalogue.length > 0) {
+        status.textContent = `${catalogue.length} court actions connected: ${catalogue
+          .map((entry) => entry.name)
+          .join(', ')}. The agents can read the case and propose a vote — you confirm it.`;
+      } else {
+        status.textContent =
+          'The agent runtime started, but no court actions were discovered. The courtroom below still works.';
+        status.classList.add('agent-status--error');
+      }
     }
   } catch (error) {
     // The courtroom works without the agent layer. Say so plainly instead of
@@ -160,7 +168,7 @@ async function mountAgents() {
     console.error('agent runtime failed to mount', error);
     if (status) {
       status.textContent =
-        'The agent layer could not start. The courtroom below still works: the agents need a model key to speak, but the case and the ballot do not.';
+        'Agent layer error: ' + (error && error.message ? error.message : String(error)) + ' — the courtroom below still works.';
       status.classList.add('agent-status--error');
     }
   } finally {

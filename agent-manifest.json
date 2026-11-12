@@ -6,7 +6,12 @@
       "front_man": "court_clerk",
       "hocon": "./cringecourt.network.json",
       "description": "A public courtroom where two AI counsel argue a submitted moment of cringe and a human jury decides. Ask it to hear today's case. It returns the transcript and stops: the verdict is cast by people, through the site's own ballot. The court never announces a verdict itself.",
-      "tags": ["deployed", "nsdeploy", "courtroom", "game"],
+      "tags": [
+        "deployed",
+        "nsdeploy",
+        "courtroom",
+        "game"
+      ],
       "sample_queries": [
         "Hear today's case.",
         "Someone replied 'you too' to a waiter. Prosecute it.",
@@ -38,7 +43,7 @@
   },
   "actions": {
     "version": 1,
-    "module": "./actions/court-actions.js",
+    "module": "./actions/court-actions.js?v=11",
     "agentTools": [
       "get_case_state",
       "submit_exhibit",
@@ -52,7 +57,11 @@
       {
         "network": "cringecourt",
         "front_man": "court_clerk",
-        "aliases": ["cringecourt", "court_clerk", "cringe_court"],
+        "aliases": [
+          "cringecourt",
+          "court_clerk",
+          "cringe_court"
+        ],
         "url": "cringecourt"
       }
     ],

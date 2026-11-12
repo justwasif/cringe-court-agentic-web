@@ -195,11 +195,11 @@ export function createActionHandlers(host) {
 
   return ACTIONS.map((action) => ({
     name: action.name,
-    purpose: action.purpose,
+    description: action.purpose,
     effect: action.effect,
     inputSchema: action.inputSchema,
     outputSchema: action.outputSchema,
-    handler: async (args) => {
+    execute: async (args) => {
       // The runtime validates against inputSchema; we validate again because a
       // schema bug must not be able to corrupt game state.
       const input = args && typeof args === 'object' ? args : {};
@@ -309,6 +309,17 @@ export async function registerActions(actions) {
 
   const { host } = await import('../game/host.js');
   for (const definition of createActionHandlers(host)) {
-    await actions.register(definition);
+    // IMPORTANT: pass `execute` as the *second* argument.
+    //
+    // ActionRegistry.register() runs cloneData(definition) — a JSON round-trip —
+    // to sanitise the metadata. A function property does not survive that, so an
+    // `execute` embedded in the definition arrives as undefined and registration
+    // throws 'Action requires name, description and execute function.'
+    //
+    // The registry reads `execute` from the third parameter (defaulting to
+    // definition.execute) *before* the clone is used for the metadata, so passing
+    // it explicitly is the only way a real handler survives registration.
+    const { execute, ...metadata } = definition;
+    await actions.register(metadata, execute);
   }
 }

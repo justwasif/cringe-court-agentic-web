@@ -64,11 +64,54 @@ describe('catalogue', () => {
   it('rejects a host that is not an object', () => {
     assert.throws(() => createActionHandlers(null), /host object is required/);
   });
+
+  it('emits the exact shape the runtime registry requires', () => {
+    // ActionRegistry.register() destructures { name, description, inputSchema,
+    // outputSchema, effect, execute } and throws unless description and execute
+    // are present. Asserting the shape here means a rename cannot quietly break
+    // registration in the browser again.
+    for (const definition of createActionHandlers(host)) {
+      assert.match(definition.name, /^[A-Za-z][\w-]{0,79}$/);
+      assert.equal(typeof definition.description, 'string');
+      assert.ok(definition.description.length > 0);
+      assert.equal(typeof definition.execute, 'function');
+      assert.ok(['read', 'write', 'irreversible'].includes(definition.effect));
+    }
+  });
+
+  it('registers against a registry that enforces that shape', async () => {
+    // This mirrors ActionRegistry.register() closely enough to catch the real
+    // bug: the runtime JSON-round-trips the definition (cloneData), which
+    // destroys a function property. `execute` must therefore arrive as the
+    // second argument, not inside the definition.
+    const registry = {
+      entries: [],
+      register(definition, execute) {
+        const cloned = JSON.parse(JSON.stringify(definition));
+        const handler = execute ?? cloned.execute;
+        const { name, description } = cloned;
+        if (
+          !/^[A-Za-z][\w-]{0,79}$/.test(name || '') ||
+          !description ||
+          typeof handler !== 'function'
+        ) {
+          throw new Error('Action requires name, description and execute function.');
+        }
+        this.entries.push({ name, handler });
+      },
+    };
+    const { registerActions } = await import('../actions/court-actions.js');
+    await registerActions({ register: (d, e) => registry.register(d, e) });
+    assert.equal(registry.entries.length, 4);
+    for (const entry of registry.entries) {
+      assert.equal(typeof entry.handler, 'function', `${entry.name} lost its handler`);
+    }
+  });
 });
 
 describe('get_case_state', () => {
   it('returns the full case for a date', async () => {
-    const out = await handler('get_case_state').handler({ date: '2026-11-12' });
+    const out = await handler('get_case_state').execute({ date: '2026-11-12' });
     assert.equal(out.date, '2026-11-12');
     assert.equal(out.caseNumber, 20261112);
     assert.ok(out.title.length > 0);
@@ -79,18 +122,18 @@ describe('get_case_state', () => {
   });
 
   it('defaults to today when no date is given', async () => {
-    const out = await handler('get_case_state').handler({});
+    const out = await handler('get_case_state').execute({});
     assert.match(out.date, /^\d{4}-\d{2}-\d{2}$/);
   });
 
   it('ignores a malformed date rather than failing', async () => {
-    const out = await handler('get_case_state').handler({ date: 'not-a-date' });
+    const out = await handler('get_case_state').execute({ date: 'not-a-date' });
     assert.match(out.date, /^\d{4}-\d{2}-\d{2}$/);
   });
 
   it('reports a vote once one is cast', async () => {
-    await handler('cast_verdict').handler({ date: '2026-11-12', verdict: 'GUILTY' });
-    const out = await handler('get_case_state').handler({ date: '2026-11-12' });
+    await handler('cast_verdict').execute({ date: '2026-11-12', verdict: 'GUILTY' });
+    const out = await handler('get_case_state').execute({ date: '2026-11-12' });
     assert.equal(out.guilty, 1);
     assert.equal(out.total, 1);
   });
@@ -98,16 +141,16 @@ describe('get_case_state', () => {
 
 describe('get_tally', () => {
   it('returns the counts without mutating', async () => {
-    const before = await handler('get_tally').handler({ date: '2026-11-13' });
+    const before = await handler('get_tally').execute({ date: '2026-11-13' });
     assert.deepEqual([before.guilty, before.notCooked, before.total], [0, 0, 0]);
-    const after = await handler('get_tally').handler({ date: '2026-11-13' });
+    const after = await handler('get_tally').execute({ date: '2026-11-13' });
     assert.deepEqual([after.guilty, after.total], [0, 0]);
   });
 });
 
 describe('cast_verdict', () => {
   it('records a valid verdict', async () => {
-    const out = await handler('cast_verdict').handler({
+    const out = await handler('cast_verdict').execute({
       date: '2026-11-12',
       verdict: 'GUILTY',
     });
@@ -117,7 +160,7 @@ describe('cast_verdict', () => {
   });
 
   it('rejects an invented verdict string', async () => {
-    const out = await handler('cast_verdict').handler({
+    const out = await handler('cast_verdict').execute({
       date: '2026-11-12',
       verdict: 'ACQUITTED',
     });
@@ -126,13 +169,13 @@ describe('cast_verdict', () => {
   });
 
   it('rejects a missing verdict', async () => {
-    const out = await handler('cast_verdict').handler({ date: '2026-11-12' });
+    const out = await handler('cast_verdict').execute({ date: '2026-11-12' });
     assert.equal(out.recorded, false);
   });
 
   it('refuses a second vote and reports why', async () => {
-    await handler('cast_verdict').handler({ date: '2026-11-12', verdict: 'GUILTY' });
-    const out = await handler('cast_verdict').handler({
+    await handler('cast_verdict').execute({ date: '2026-11-12', verdict: 'GUILTY' });
+    const out = await handler('cast_verdict').execute({
       date: '2026-11-12',
       verdict: 'NOT_COOKED',
     });
@@ -143,7 +186,7 @@ describe('cast_verdict', () => {
 
 describe('submit_exhibit', () => {
   it('accepts a reasonable submission', async () => {
-    const out = await handler('submit_exhibit').handler({
+    const out = await handler('submit_exhibit').execute({
       title: 'Brought a thesaurus to a break-up',
       exhibit: 'Used the word "notwithstanding" three times while being dumped.',
       aggravator: 'Had it bookmarked.',
@@ -152,7 +195,7 @@ describe('submit_exhibit', () => {
   });
 
   it('rejects a title that is too short', async () => {
-    const out = await handler('submit_exhibit').handler({
+    const out = await handler('submit_exhibit').execute({
       title: 'hi',
       exhibit: 'This is a long enough exhibit to be considered real content.',
     });
@@ -161,7 +204,7 @@ describe('submit_exhibit', () => {
   });
 
   it('rejects an exhibit that is too short', async () => {
-    const out = await handler('submit_exhibit').handler({
+    const out = await handler('submit_exhibit').execute({
       title: 'A perfectly fine title',
       exhibit: 'too short',
     });
@@ -170,34 +213,34 @@ describe('submit_exhibit', () => {
   });
 
   it('strips control characters and collapses whitespace', async () => {
-    const out = await handler('submit_exhibit').handler({
+    const out = await handler('submit_exhibit').execute({
       title: 'Brought\u0000 a\u0007 clipboard',
       exhibit: 'Assigned\n\n\ttasks to people who were eating.',
     });
     assert.equal(out.accepted, true);
     // Read it back through the case state to confirm what was stored.
-    const state = await handler('get_case_state').handler({});
+    const state = await handler('get_case_state').execute({});
     assert.ok(!state.title.includes('\u0000'));
     assert.ok(!state.exhibit.includes('\n'));
   });
 
   it('truncates an over-long exhibit instead of rejecting it', async () => {
     const long = 'a'.repeat(900);
-    const out = await handler('submit_exhibit').handler({
+    const out = await handler('submit_exhibit').execute({
       title: 'An over-long exhibit for testing',
       exhibit: long,
     });
     assert.equal(out.accepted, true);
-    const state = await handler('get_case_state').handler({});
+    const state = await handler('get_case_state').execute({});
     assert.ok(state.exhibit.length <= 400, `exhibit was ${state.exhibit.length}`);
   });
 
   it('refuses a second exhibit on the same day', async () => {
-    await handler('submit_exhibit').handler({
+    await handler('submit_exhibit').execute({
       title: 'The first exhibit of the day',
       exhibit: 'Something that definitely happened to someone.',
     });
-    const out = await handler('submit_exhibit').handler({
+    const out = await handler('submit_exhibit').execute({
       title: 'The second exhibit of the day',
       exhibit: 'Something else that also definitely happened.',
     });
@@ -206,12 +249,12 @@ describe('submit_exhibit', () => {
   });
 
   it('substitutes the submitted exhibit into the hearing', async () => {
-    await handler('submit_exhibit').handler({
+    await handler('submit_exhibit').execute({
       title: 'Tested a smoke alarm with a candle',
       exhibit: 'Wanted to see if it still worked. It did. At 3am.',
       aggravator: 'The neighbours also found out.',
     });
-    const state = await handler('get_case_state').handler({});
+    const state = await handler('get_case_state').execute({});
     assert.equal(state.title, 'Tested a smoke alarm with a candle');
     assert.match(state.exhibit, /3am/);
   });
@@ -228,7 +271,7 @@ describe('hostile host', () => {
       castVerdict: () => ({ recorded: false }),
     };
     await assert.rejects(
-      () => handler('get_case_state', broken).handler({ date: '2026-11-12' }),
+      () => handler('get_case_state', broken).execute({ date: '2026-11-12' }),
       /host exploded/
     );
   });
